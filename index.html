@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+<meta name="theme-color" content="#b45f06">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Point boissons</title>
+<style>
+:root{--bg:#f7f4ef;--card:#fff;--tx:#241a10;--mut:#7a6d60;--pri:#b45f06;--bd:#e6dfd5;--bad:#c0392b;--ok:#1b8a4b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17120d;--card:#221b14;--tx:#f0e8de;--mut:#a89a8a;--bd:#3a2f24;--bad:#ff7b6b;--ok:#4fd387;--pri:#e08a2c}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:70px}
+header{background:var(--pri);color:#fff;padding:12px 14px;font-weight:700;font-size:17px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+main{padding:12px;max-width:640px;margin:auto}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+label{display:block;font-size:11px;color:var(--mut);margin:6px 0 2px}
+input,select{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g3{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.g3 input{padding:8px 4px}.rs{padding:8px 0;font-weight:700;text-align:center}
+button{border:0;border-radius:10px;padding:11px 14px;font:inherit;font-weight:600;background:var(--pri);color:#fff;cursor:pointer}
+button.s{background:var(--bd);color:var(--tx)}button.d{background:var(--bad)}button.x{padding:6px 10px}
+.btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.btns button{flex:1}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;background:none;color:var(--mut);border-radius:0;padding:12px 2px;font-size:12px}
+nav button.on{color:var(--pri);box-shadow:inset 0 2px 0 var(--pri)}
+.big{font-size:22px;font-weight:700}.pos{color:var(--ok)}.neg{color:var(--bad)}
+.dr{padding:8px 0;border-bottom:1px solid var(--bd)}.dr:last-child{border:0}.dn{display:flex;justify-content:space-between}
+pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px;font:13px/1.4 ui-monospace,monospace;margin:8px 0 0}
+.it{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.it:last-child{border:0}.mut{color:var(--mut);font-size:12px}.hide{display:none}
+</style>
+</head>
+<body>
+<header><img src="icon-192.png" alt="" width="28" height="28" style="border-radius:7px;vertical-align:middle;margin-right:8px">Point des boissons</header>
+<main>
+<section id="t-point">
+ <div class="card"><div class="row"><div><label>Établissement</label><select id="etab"></select></div><div><label>Date</label><input type="date" id="date"></div></div>
+ <p class="mut" style="margin:8px 0 0">Stock = stock restant de la veille (modifiable). Saisissez les entrées et les ventes en bouteilles : stock restant = stock + entrée − vendu.</p></div>
+ <div class="card" id="rows"></div>
+ <div class="card">
+  <div class="row"><div><div class="mut">Chiffre d’affaires</div><div class="big" id="ca">0</div></div><div><div class="mut">Bénéfice</div><div class="big" id="bn">0</div></div></div>
+  <div class="mut" style="margin-top:6px" id="sv"></div>
+  <pre id="msg"></pre>
+  <div class="btns"><button id="sw">Enregistrer + WhatsApp</button><button class="s" id="so">Enregistrer</button></div>
+  <div class="btns"><button class="s" id="cp">Copier</button><button class="s hide" id="grp">Ouvrir le groupe</button><button class="d hide" id="del">Supprimer ce point</button></div>
+ </div>
+</section>
+<section id="t-cat" class="hide">
+ <div class="card"><b>Boissons et prix</b><p class="mut">Renseignez le prix d’achat (PA) et de vente (PV) de chaque bouteille. Un point enregistré garde les prix du jour.</p><div id="clist"></div></div>
+ <div class="card"><b>Ajouter une boisson</b><label>Nom</label><input id="nn">
+  <div class="row"><div><label>Prix d’achat</label><input type="number" inputmode="numeric" id="npa"></div><div><label>Prix de vente</label><input type="number" inputmode="numeric" id="npv"></div></div>
+  <div class="btns"><button id="add">Ajouter</button></div></div>
+</section>
+<section id="t-recap" class="hide">
+ <div class="card"><div class="row"><div><label>Du</label><input type="date" id="d1"></div><div><label>Au</label><input type="date" id="d2"></div></div>
+ <label>Établissement</label><select id="fe"></select>
+ <div class="row" style="margin-top:10px"><div><div class="mut">Chiffre d’affaires</div><div class="big" id="rca">0</div></div><div><div class="mut">Bénéfice / perte</div><div class="big" id="rbn">0</div></div></div>
+ <pre id="rmsg"></pre>
+ <div class="btns"><button id="rwa">Envoyer le récap</button><button class="s" id="rcp">Copier</button></div></div>
+ <div class="card"><b>Par jour</b><div id="hist"></div></div>
+</section>
+<section id="t-set" class="hide">
+ <div class="card"><b>Établissements</b><div id="elist"></div>
+  <label>Nouvel établissement</label><input id="en"><div class="btns"><button id="eadd">Ajouter</button></div></div>
+ <div class="card"><b>Données</b>
+  <div class="btns"><button class="s" id="exp">Exporter</button><button class="s" id="imp">Importer</button><button class="s" id="inst">Installer l’appli</button></div>
+  <input type="file" id="file" accept=".json" class="hide">
+  <p class="mut">Le bouton WhatsApp ouvre l’application avec le message prêt, puis vous choisissez le groupe. Collez le lien d’invitation de chaque groupe pour l’ouvrir en un clic. Les données restent dans ce navigateur : exportez une sauvegarde régulièrement.</p></div>
+</section>
+</main>
+<nav><button data-t="point" class="on">✏️ Point</button><button data-t="cat">🍾 Boissons</button><button data-t="recap">📊 Récap</button><button data-t="set">⚙️ Réglages</button></nav>
+<script>
+const $=id=>document.getElementById(id);
+const D=[["Heineken",700,120],["Desperado",700,168],["Rhino",600,120],["Beaufort 33",600,48],["Guinness",800,48],["Orangina",500,48],["Sucrerie",500,48],["Malta",600,48],["Doppel Energie",600,24],["Beaufort 50",700,24],["Bock",600,24],["Chil",600,24],["Raanes",600,24],["Raanes Fort",700,24],["Doppel Beer",700,24],["Vin",1000,24],["Barron noire",8000,2],["JP Chenet",8000,6],["Chamberie",3500,6],["Saint Simon",3500,3],["RLG",3000,1],["Barron blanc",7000,6],["Cody's Beer Bleu",700,48],["Cody's Energie",500,48],["Yody's",700,48]];
+let S={etabs:[{n:"RUES DES STARS",g:""},{n:"Primature 1",g:""},{n:"Primature 3",g:""},{n:"Primature 7",g:""},{n:"Pergola",g:""}],drinks:D.map(x=>({n:x[0],pa:0,pv:x[1]})),pts:{"2026-10-16|RUES DES STARS":{l:Object.fromEntries(D.map(x=>[x[0],{d:String(x[2]),e:"",v:""}])),p:Object.fromEntries(D.map(x=>[x[0],[0,x[1]]]))}}};
+try{const x=localStorage.getItem("bw");if(x)S=JSON.parse(x)}catch(e){}
+const save=()=>{try{localStorage.setItem("bw",JSON.stringify(S))}catch(e){}};
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const fm=n=>(Math.round(n)||0).toLocaleString("fr-FR").replace(/[\u202f\u00a0]/g," ");
+const fd=d=>d.split("-").reverse().join("/");
+const key=()=>$("date").value+"|"+$("etab").value;
+const vOf=x=>x.v!==undefined?(+x.v||0):((x.f===""||x.f==null)?0:(+x.d||0)+(+x.e||0)-(+x.f));
+function prevFin(et,d,n){let b="";Object.keys(S.pts).forEach(k=>{const[a,e]=k.split("|");const x=S.pts[k].l[n];if(e==et&&a<d&&a>b&&x)b=a});if(!b)return"";const x=S.pts[b+"|"+et].l[n];return (+x.d||0)+(+x.e||0)-vOf(x)}
+function calcPt(l,p){let ca=0,co=0,so=0,en=0,sv=0,L=[];for(const n in l){const x=l[n],q=p[n]||[0,0],e=+x.e||0,d=+x.d||0,s=vOf(x),f=d+e-s;en+=e;so+=s;ca+=s*q[1];co+=s*q[0];sv+=f*q[0];if(e||s)L.push({n,d,s,f,e})}return{ca,co,so,en,sv,L}}
+function msg(et,d,c){let t=`🍺 *POINT BOISSONS* — ${fd(d)}\n📍 ${et}\n`;c.L.forEach(x=>{t+=`\n• ${x.n} : stock ${x.d}${x.e?" | entrée +"+x.e:""} | vendu ${x.s} | reste ${x.f}`});if(!c.L.length)t+="\nAucune ligne saisie.";return t+`\n\n💰 Chiffre d’affaires : ${fm(c.ca)} FCFA\n🛒 Coût d’achat : ${fm(c.co)}\n✅ Bénéfice : ${fm(c.ca-c.co)} FCFA\n📦 Bouteilles entrées : ${c.en}\n🧮 Valeur du stock : ${fm(c.sv)} FCFA`}
+function curL(){const l={};document.querySelectorAll("#rows .dr").forEach(r=>{const n=S.drinks[+r.dataset.i].n;const[d,e,v]=["d","e","v"].map(k=>r.querySelector(`[data-k=${k}]`).value);if(d!==""||e!==""||v!=="")l[n]={d,e,v}});return l}
+const curP=()=>{const p={};S.drinks.forEach(x=>p[x.n]=[x.pa,x.pv]);return p};
+function buildRows(){const et=$("etab").value,dt=$("date").value,P=S.pts[key()];
+$("rows").innerHTML=S.drinks.map((x,i)=>{const o=P&&P.l[x.n];const d=o?o.d:prevFin(et,dt,x.n),e=o?o.e:"",v=o?(o.v!==undefined?o.v:(vOf(o)||"")):"";
+return`<div class="dr" data-i="${i}"><div class="dn"><b>${x.n}</b><span class="mut">PA ${fm(x.pa)} · PV ${fm(x.pv)}</span></div><div class="g3"><div><label>Stock</label><input type="number" inputmode="numeric" data-k="d" value="${d}"></div><div><label>Entrée</label><input type="number" inputmode="numeric" data-k="e" value="${e}"></div><div><label>Vendu</label><input type="number" inputmode="numeric" data-k="v" value="${v}"></div><div><label>Stock restant</label><div class="rs vd">0</div></div></div></div>`}).join("")||'<p class="mut">Ajoutez des boissons dans l’onglet Boissons.</p>';
+$("del").classList.toggle("hide",!P);calc()}
+function calc(){const l=curL(),p=curP(),c=calcPt(l,p);
+document.querySelectorAll("#rows .dr").forEach(r=>{const el=r.querySelector(".vd"),g=k=>+r.querySelector(`[data-k=${k}]`).value||0,f=g("d")+g("e")-g("v");el.textContent=f;el.className="rs vd "+(f<0?"neg":"");el.title=f<0?"Vendu supérieur au stock":""});
+$("ca").textContent=fm(c.ca);const b=c.ca-c.co;$("bn").textContent=fm(b);$("bn").className="big "+(b<0?"neg":"pos");
+$("sv").textContent="Valeur du stock restant (prix d’achat) : "+fm(c.sv)+" FCFA";$("msg").textContent=msg($("etab").value,$("date").value,c);
+const e=S.etabs.find(x=>x.n==$("etab").value);$("grp").classList.toggle("hide",!(e&&e.g))}
+function fill(){const c=$("etab").value,f=$("fe").value,o=S.etabs.map(e=>`<option>${e.n}</option>`).join("");$("etab").innerHTML=o;$("fe").innerHTML="<option value=''>Tous</option>"+o;if(c)$("etab").value=c;if(f)$("fe").value=f;
+$("elist").innerHTML=S.etabs.map((e,i)=>`<div class="it"><div style="flex:1"><b>${e.n}</b><input data-i="${i}" class="gl" placeholder="Lien du groupe WhatsApp" value="${e.g||""}"></div><button class="d x" data-del="${i}">✕</button></div>`).join("");
+$("clist").innerHTML=S.drinks.map((x,i)=>`<div class="dr"><div class="dn"><b>${x.n}</b><button class="d x" data-dd="${i}">✕</button></div><div class="row"><div><label>Prix d’achat</label><input type="number" inputmode="numeric" data-c="${i}" data-f="pa" value="${x.pa}"></div><div><label>Prix de vente</label><input type="number" inputmode="numeric" data-c="${i}" data-f="pv" value="${x.pv}"></div></div></div>`).join("")}
+function recap(){const a=$("d1").value,b=$("d2").value,f=$("fe").value,T={ca:0,co:0,so:0,en:0},by={},ds={};
+Object.keys(S.pts).forEach(k=>{const[d,e]=k.split("|");if(d<a||d>b||(f&&e!=f))return;const P=S.pts[k],c=calcPt(P.l,P.p||{});["ca","co","so","en"].forEach(z=>T[z]+=c[z]);const y=by[e]=by[e]||{ca:0,co:0};y.ca+=c.ca;y.co+=c.co;const w=ds[d]=ds[d]||{ca:0,co:0};w.ca+=c.ca;w.co+=c.co});
+const bn=T.ca-T.co;$("rca").textContent=fm(T.ca);$("rbn").textContent=fm(bn);$("rbn").className="big "+(bn<0?"neg":"pos");
+let t=`🍺 *RÉCAP BOISSONS* — ${a==b?fd(a):fd(a)+" au "+fd(b)}\n`;Object.keys(by).forEach(e=>t+=`\n📍 ${e} : CA ${fm(by[e].ca)} | Bénéfice ${fm(by[e].ca-by[e].co)}`);
+t+=Object.keys(by).length?`\n\n💰 CA total : ${fm(T.ca)} FCFA\n✅ Bénéfice : ${fm(bn)} FCFA\n🍾 Bouteilles vendues : ${T.so}\n📦 Bouteilles entrées : ${T.en}`:"\nAucun point sur cette période.";
+$("rmsg").textContent=t;
+$("hist").innerHTML=Object.keys(ds).sort().reverse().map(d=>{const g=ds[d].ca-ds[d].co;return`<div class="it"><span>${fd(d)}<div class="mut">CA ${fm(ds[d].ca)}</div></span><b class="${g<0?"neg":"pos"}">${g<0?"":"+"}${fm(g)}</b></div>`}).join("")||'<p class="mut">Aucun point.</p>'}
+function wa(t){location.href="https://wa.me/?text="+encodeURIComponent(t)}
+function cp(t,b){navigator.clipboard.writeText(t).then(()=>{const o=b.textContent;b.textContent="Copié ✓";setTimeout(()=>b.textContent=o,1500)}).catch(()=>{})}
+function rec(){S.pts[key()]={l:curL(),p:curP()};save();recap();$("del").classList.remove("hide")}
+$("date").value=$("d1").value=$("d2").value=today();fill();buildRows();recap();
+$("etab").onchange=$("date").onchange=buildRows;
+$("rows").oninput=calc;
+["d1","d2","fe"].forEach(i=>$(i).onchange=recap);
+$("sw").onclick=()=>{rec();wa($("msg").textContent)};
+$("so").onclick=e=>{rec();e.target.textContent="Enregistré ✓";setTimeout(()=>e.target.textContent="Enregistrer",1500)};
+$("cp").onclick=e=>cp($("msg").textContent,e.target);
+$("grp").onclick=()=>{const e=S.etabs.find(x=>x.n==$("etab").value);if(e&&e.g)window.open(e.g,"_blank")};
+$("del").onclick=()=>{if(confirm("Supprimer ce point ?")){delete S.pts[key()];save();buildRows();recap()}};
+$("rwa").onclick=()=>wa($("rmsg").textContent);$("rcp").onclick=e=>cp($("rmsg").textContent,e.target);
+$("add").onclick=()=>{const n=$("nn").value.trim();if(n&&!S.drinks.some(x=>x.n==n)){S.drinks.push({n,pa:+$("npa").value||0,pv:+$("npv").value||0});save();["nn","npa","npv"].forEach(i=>$(i).value="");fill();buildRows()}};
+$("clist").onchange=e=>{const i=e.target.dataset.c;if(i!==undefined){S.drinks[+i][e.target.dataset.f]=+e.target.value||0;save();buildRows()}};
+$("clist").onclick=e=>{const i=e.target.dataset.dd;if(i!==undefined&&confirm("Retirer cette boisson de la liste ? Les anciens points restent enregistrés.")){S.drinks.splice(+i,1);save();fill();buildRows()}};
+$("eadd").onclick=()=>{const n=$("en").value.trim();if(n&&!S.etabs.some(e=>e.n==n)){S.etabs.push({n,g:""});save();$("en").value="";fill();buildRows();recap()}};
+$("elist").onclick=e=>{const i=e.target.dataset.del;if(i!==undefined&&confirm("Supprimer cet établissement de la liste ? Ses points restent enregistrés.")){S.etabs.splice(+i,1);save();fill();buildRows();recap()}};
+$("elist").onchange=e=>{if(e.target.classList.contains("gl")){S.etabs[+e.target.dataset.i].g=e.target.value.trim();save();calc()}};
+$("exp").onclick=()=>{const a=document.createElement("a");a.href="data:application/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(S));a.download="point-boissons.json";a.click()};
+$("imp").onclick=()=>$("file").click();
+$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();fill();buildRows();recap()}catch(x){alert("Fichier invalide")}};r.readAsText(f)};
+let dp;addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e});
+$("inst").onclick=()=>dp?dp.prompt():alert("Menu du navigateur → « Ajouter à l’écran d’accueil » ou « Installer ».");
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x==b));["point","cat","recap","set"].forEach(t=>$("t-"+t).classList.toggle("hide",t!=b.dataset.t));if(b.dataset.t=="recap")recap()});
+if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
